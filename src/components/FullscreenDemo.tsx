@@ -141,6 +141,77 @@ export const FullscreenDemo = () => {
     setGenerationProgress(0);
   };
 
+  const handleEditCommand = async (command: string) => {
+    if (!generatedSite) {
+      const aiMessage: Message = {
+        id: Date.now().toString(),
+        text: "Сначала создай сайт, а потом я смогу его редактировать! 😊",
+        sender: "ai",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+      return;
+    }
+
+    setIsTyping(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsTyping(false);
+
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes("цвет") || lowerCommand.includes("color")) {
+      const colors = ["amber", "blue", "purple", "green", "red"];
+      const newColor = colors[Math.floor(Math.random() * colors.length)];
+      setGeneratedSite({ ...generatedSite, color: newColor });
+      
+      const colorNames: Record<string, string> = {
+        amber: "янтарная",
+        blue: "синяя",
+        purple: "фиолетовая",
+        green: "зелёная",
+        red: "красная"
+      };
+      
+      const aiMessage: Message = {
+        id: Date.now().toString(),
+        text: `Готово! Изменил цветовую схему сайта ✨\n\nТеперь используется ${colorNames[newColor]} палитра.`,
+        sender: "ai",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+    } else if (lowerCommand.includes("название") || lowerCommand.includes("заголовок")) {
+      const newTitle = command.match(/[«"]([^»"]+)[»"]/)?.[1] || "Новое Название";
+      setGeneratedSite({ ...generatedSite, title: newTitle });
+      
+      const aiMessage: Message = {
+        id: Date.now().toString(),
+        text: `Готово! Изменил название сайта на "${newTitle}" 🎯`,
+        sender: "ai",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+    } else if (lowerCommand.includes("страниц") || lowerCommand.includes("добавь страниц")) {
+      const newPages = Math.min(generatedSite.pages + 2, 12);
+      setGeneratedSite({ ...generatedSite, pages: newPages });
+      
+      const aiMessage: Message = {
+        id: Date.now().toString(),
+        text: `Готово! Добавил ещё страницы. Теперь сайт содержит ${newPages} страниц 📄`,
+        sender: "ai",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+    } else {
+      const aiMessage: Message = {
+        id: Date.now().toString(),
+        text: "Понял! Применяю изменения... ✅\n\nМожешь попросить:\n• Изменить цвет сайта\n• Изменить название на \"Новое название\"\n• Добавить страниц\n• Создать новый сайт",
+        sender: "ai",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+    }
+  };
+
   const handleSend = async () => {
     if (!inputValue.trim() || isGenerating) return;
 
@@ -159,10 +230,19 @@ export const FullscreenDemo = () => {
     await new Promise(resolve => setTimeout(resolve, 800));
     setIsTyping(false);
 
-    await generateSite(prompt);
+    const lowerPrompt = prompt.toLowerCase();
+    if (generatedSite && (lowerPrompt.includes("измени") || lowerPrompt.includes("поменяй") || lowerPrompt.includes("добавь страниц") || lowerPrompt.includes("цвет"))) {
+      await handleEditCommand(prompt);
+    } else {
+      await generateSite(prompt);
+    }
   };
 
-  const quickPrompts = [
+  const quickPrompts = generatedSite ? [
+    "Изменить цвет сайта",
+    "Добавить ещё страниц",
+    "Изменить название на \"Premium Coffee\"",
+  ] : [
     "Сделай лендинг для кофейни",
     "Создай интернет-магазин одежды",
     "Портфолио для дизайнера",
@@ -186,6 +266,9 @@ export const FullscreenDemo = () => {
                   size="sm"
                   onClick={() => {
                     setInputValue(prompt);
+                    setTimeout(() => {
+                      handleSend();
+                    }, 100);
                   }}
                   className="text-xs"
                 >
