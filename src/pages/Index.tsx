@@ -8,9 +8,11 @@ import { useState } from "react";
 import { ChatWidget } from "@/components/ChatWidget";
 import { InteractiveDemo } from "@/components/InteractiveDemo";
 import { LiveCodeEditor } from "@/components/LiveCodeEditor";
+import { FullscreenDemo } from "@/components/FullscreenDemo";
 
 const Index = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [showFullscreenDemo, setShowFullscreenDemo] = useState(false);
 
   const features = [
     {
@@ -43,7 +45,7 @@ const Index = () => {
       title: "Можно редактировать",
       description: "Доступ к коду, интеграция с GitHub, полный контроль"
     }
-  ];}
+  ];
 
   const plans = [
     {
@@ -106,11 +108,20 @@ const Index = () => {
               Лендинги, магазины, блоги — всё готово за полминуты.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" className="text-lg px-8 py-6 card-glow hover:scale-105 transition-transform">
+              <Button 
+                size="lg" 
+                className="text-lg px-8 py-6 card-glow hover:scale-105 transition-transform"
+                onClick={() => setShowFullscreenDemo(true)}
+              >
                 <Icon name="Rocket" className="mr-2" size={20} />
                 Попробовать бесплатно
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover:scale-105 transition-transform">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-8 py-6 hover:scale-105 transition-transform"
+                onClick={() => setShowFullscreenDemo(true)}
+              >
                 <Icon name="PlayCircle" className="mr-2" size={20} />
                 Смотреть демо
               </Button>
@@ -296,6 +307,20 @@ const Index = () => {
       </footer>
       
       <ChatWidget />
+      
+      {showFullscreenDemo && (
+        <div className="fixed inset-0 z-50">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 z-[60] bg-background/80 backdrop-blur-sm hover:bg-background"
+            onClick={() => setShowFullscreenDemo(false)}
+          >
+            <Icon name="X" size={24} />
+          </Button>
+          <FullscreenDemo />
+        </div>
+      )}
     </div>
   );
 };
