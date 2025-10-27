@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import Icon from "@/components/ui/icon";
 
 interface Message {
@@ -13,36 +14,29 @@ interface Message {
   timestamp: Date;
 }
 
+interface GeneratedSite {
+  type: string;
+  title: string;
+  description: string;
+  color: string;
+  pages: number;
+}
+
 export const FullscreenDemo = () => {
   const [activeTab, setActiveTab] = useState<"site" | "structure">("site");
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: "1",
-      text: "Добавь все функции",
-      sender: "user",
-      timestamp: new Date(Date.now() - 120000),
-    },
-    {
-      id: "2", 
-      text: "Добавлю интерактивный чат с ИИ-ассистентом и демо-функционал платформы!\n\nГотово! Добавил все интерактивные функции на платформу 🎯\n\nНовые возможности:\n- Чат с ИИ-ассистентом — плавающая кнопка справа внизу для общения с ИИ\n- Интерактивное демо — переключение между превью и кодом, кнопка публикации\n- Живой редактор кода — пиши описание → ИИ генерирует код в реальном времени\n- Быстрые промпты — готовые примеры для тестирования\n- Статистика генерации — время, строки кода, количество кликов\n\nХочешь, я добавлю секцию с отзывами клиентов и кейсами успешных проектов?",
-      sender: "ai",
-      timestamp: new Date(Date.now() - 60000),
-    },
-    {
-      id: "3",
-      text: "сайт должен не просто код генерить, а полноценные сайты.",
-      sender: "user",
-      timestamp: new Date(Date.now() - 30000),
-    },
-    {
-      id: "4",
-      text: "Понял! Перестраиваю платформу на создание полноценных сайтов, а не просто кода 🚀\n\nГотово! Теперь платформа создаёт полноценные сайты 🌐\n\nЧто изменил:\n- Hero: \"Создавайте сайты за 30 секунд\" вместо \"силой мысли\"\n- Описание: ИИ создаёт полные проекты — лендинги, магазины, блоги\n- Демо: показывает готовый сайт кофейни с меню и структурой\n- Живой редактор: генерирует превью разных типов сайтов\n- Чат: ИИ говорит про создание сайтов, а не просто кода\n- Возможности: упор на полноценные проекты со страницами\n\nХочешь, я добавлю раздел с примерами готовых сайтов (галерею шаблонов)?",
+      id: "0",
+      text: "Привет! Я создаю полноценные сайты. Опиши какой сайт нужен, и я сделаю его за 30 секунд! 🚀",
       sender: "ai",
       timestamp: new Date(),
     },
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [generatedSite, setGeneratedSite] = useState<GeneratedSite | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,8 +45,104 @@ export const FullscreenDemo = () => {
     }
   }, [messages]);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const siteTemplates = [
+    {
+      keywords: ["кофе", "кофейн", "cafe", "coffee"],
+      type: "coffee",
+      title: "Уютная Кофейня",
+      description: "Лендинг для кофейни с меню и бронированием",
+      color: "amber",
+      pages: 5,
+    },
+    {
+      keywords: ["магазин", "shop", "интернет-магазин", "одежд"],
+      type: "shop",
+      title: "Магазин Одежды",
+      description: "Интернет-магазин с каталогом и корзиной",
+      color: "blue",
+      pages: 8,
+    },
+    {
+      keywords: ["портфолио", "portfolio", "дизайнер", "фотограф"],
+      type: "portfolio",
+      title: "Портфолио Дизайнера",
+      description: "Портфолио с галереей работ",
+      color: "purple",
+      pages: 4,
+    },
+    {
+      keywords: ["блог", "blog", "статьи"],
+      type: "blog",
+      title: "Блог о Технологиях",
+      description: "Блог с системой комментариев",
+      color: "green",
+      pages: 6,
+    },
+    {
+      keywords: ["ресторан", "restaurant", "еда"],
+      type: "restaurant",
+      title: "Ресторан",
+      description: "Сайт ресторана с меню и бронированием",
+      color: "red",
+      pages: 5,
+    },
+  ];
+
+  const generateSite = async (prompt: string) => {
+    setIsGenerating(true);
+    setGenerationProgress(0);
+
+    const lowerPrompt = prompt.toLowerCase();
+    let selectedTemplate = siteTemplates[0];
+
+    for (const template of siteTemplates) {
+      if (template.keywords.some(keyword => lowerPrompt.includes(keyword))) {
+        selectedTemplate = template;
+        break;
+      }
+    }
+
+    const steps = [
+      "Анализирую описание...",
+      "Создаю структуру сайта...",
+      "Генерирую компоненты...",
+      "Настраиваю дизайн...",
+      "Добавляю интерактивность...",
+      "Оптимизирую код...",
+      "Готово! ✨",
+    ];
+
+    for (let i = 0; i < steps.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setGenerationProgress((i + 1) * (100 / steps.length));
+      
+      if (i < steps.length - 1) {
+        const stepMessage: Message = {
+          id: `gen-${Date.now()}-${i}`,
+          text: steps[i],
+          sender: "ai",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, stepMessage]);
+      }
+    }
+
+    setGeneratedSite(selectedTemplate);
+    
+    const finalMessage: Message = {
+      id: `gen-final-${Date.now()}`,
+      text: `Готово! Создал сайт "${selectedTemplate.title}" 🎉\n\n✓ ${selectedTemplate.pages} страниц\n✓ Адаптивный дизайн\n✓ SEO оптимизация\n✓ Готов к публикации\n\nМожешь посмотреть результат справа или попросить изменить что-то!`,
+      sender: "ai",
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, finalMessage]);
+    
+    setIsGenerating(false);
+    setGenerationProgress(0);
+  };
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || isGenerating) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -62,24 +152,140 @@ export const FullscreenDemo = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const prompt = inputValue;
     setInputValue("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      const aiResponses = [
-        "Отлично! Создаю полноценный лендинг с главной страницей, меню и контактами...",
-        "Готово! Сайт с 5 страницами создан. Добавить форму обратной связи?",
-        "Настроил базу данных и бэкенд для обработки заказов.",
-      ];
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: aiResponses[Math.floor(Math.random() * aiResponses.length)],
-        sender: "ai",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-      setIsTyping(false);
-    }, 1500);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setIsTyping(false);
+
+    await generateSite(prompt);
+  };
+
+  const quickPrompts = [
+    "Сделай лендинг для кофейни",
+    "Создай интернет-магазин одежды",
+    "Портфолио для дизайнера",
+  ];
+
+  const renderSitePreview = () => {
+    if (!generatedSite) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center space-y-4">
+            <Icon name="Sparkles" size={64} className="mx-auto text-primary/30" />
+            <div className="space-y-2">
+              <p className="text-lg font-medium">Опиши какой сайт нужен</p>
+              <p className="text-sm text-muted-foreground">ИИ создаст полноценный проект за 30 секунд</p>
+            </div>
+            <div className="flex flex-col gap-2 pt-4">
+              {quickPrompts.map((prompt) => (
+                <Button
+                  key={prompt}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setInputValue(prompt);
+                  }}
+                  className="text-xs"
+                >
+                  {prompt}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const colorClasses = {
+      amber: { bg: "from-amber-950/40", border: "border-amber-600/20", icon: "text-amber-400", button: "bg-amber-600 hover:bg-amber-700" },
+      blue: { bg: "from-blue-950/40", border: "border-blue-600/20", icon: "text-blue-400", button: "bg-blue-600 hover:bg-blue-700" },
+      purple: { bg: "from-purple-950/40", border: "border-purple-600/20", icon: "text-purple-400", button: "bg-purple-600 hover:bg-purple-700" },
+      green: { bg: "from-green-950/40", border: "border-green-600/20", icon: "text-green-400", button: "bg-green-600 hover:bg-green-700" },
+      red: { bg: "from-red-950/40", border: "border-red-600/20", icon: "text-red-400", button: "bg-red-600 hover:bg-red-700" },
+    };
+
+    const colors = colorClasses[generatedSite.color as keyof typeof colorClasses];
+
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <Card className="overflow-hidden border-border/50 card-glow">
+          <div className="bg-muted/30 px-4 py-2 flex items-center gap-3 border-b border-border/50">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-500/70"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500/70"></div>
+            </div>
+            <div className="flex-1 bg-background/80 rounded px-3 py-1 text-sm text-muted-foreground flex items-center gap-2">
+              <Icon name="Lock" size={12} className="text-green-500" />
+              <span>{generatedSite.type}.poehali.dev</span>
+            </div>
+          </div>
+
+          <CardContent className="p-0">
+            <div className={`bg-gradient-to-br ${colors.bg} via-background to-background p-12`}>
+              <div className="max-w-4xl mx-auto space-y-8">
+                <div className="text-center space-y-6">
+                  <div className={`inline-flex w-20 h-20 bg-${generatedSite.color}-600/30 rounded-full items-center justify-center border-2 ${colors.border}`}>
+                    <Icon name="Sparkles" size={40} className={colors.icon} />
+                  </div>
+                  <h1 className="text-5xl font-heading font-bold text-gradient">
+                    {generatedSite.title}
+                  </h1>
+                  <p className="text-xl text-muted-foreground">
+                    {generatedSite.description}
+                  </p>
+                  <div className="flex gap-4 justify-center">
+                    <Button size="lg" className={colors.button}>
+                      <Icon name="Rocket" size={18} className="mr-2" />
+                      Начать
+                    </Button>
+                    <Button size="lg" variant="outline">Узнать больше</Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-6">
+                  {["Feature 1", "Feature 2", "Feature 3"].map((item, i) => (
+                    <Card key={i} className={`${colors.border} bg-card/50 hover:bg-card transition-all cursor-pointer hover:scale-105`}>
+                      <CardContent className="p-6 text-center">
+                        <Icon name="CheckCircle" className={colors.icon + " mx-auto mb-3"} size={40} />
+                        <h3 className="font-semibold text-lg mb-2">{item}</h3>
+                        <p className="text-sm text-muted-foreground">Описание функции</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="border-border/50 bg-card/50">
+            <CardContent className="p-6 text-center">
+              <Icon name="Zap" className="text-primary mx-auto mb-3" size={32} />
+              <p className="text-3xl font-bold mb-1">30 сек</p>
+              <p className="text-sm text-muted-foreground">Время создания</p>
+            </CardContent>
+          </Card>
+          <Card className="border-border/50 bg-card/50">
+            <CardContent className="p-6 text-center">
+              <Icon name="FileText" className="text-secondary mx-auto mb-3" size={32} />
+              <p className="text-3xl font-bold mb-1">{generatedSite.pages} страниц</p>
+              <p className="text-sm text-muted-foreground">Полный функционал</p>
+            </CardContent>
+          </Card>
+          <Card className="border-border/50 bg-card/50">
+            <CardContent className="p-6 text-center">
+              <Icon name="Smartphone" className="text-green-500 mx-auto mb-3" size={32} />
+              <p className="text-3xl font-bold mb-1">100%</p>
+              <p className="text-sm text-muted-foreground">Адаптивный</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -91,8 +297,11 @@ export const FullscreenDemo = () => {
               <Icon name="Sparkles" size={20} />
             </div>
             <div>
-              <h3 className="font-heading font-semibold">Проект сайта</h3>
-              <p className="text-xs text-muted-foreground">Добавь все функции</p>
+              <h3 className="font-heading font-semibold">ИИ Ассистент</h3>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Онлайн
+              </p>
             </div>
           </div>
         </div>
@@ -134,13 +343,25 @@ export const FullscreenDemo = () => {
                 </div>
               </div>
             )}
+            {isGenerating && generationProgress > 0 && (
+              <div className="bg-muted rounded-2xl px-4 py-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Icon name="Loader2" size={16} className="animate-spin text-primary" />
+                    <span className="text-sm font-medium">Создаю сайт...</span>
+                  </div>
+                  <Progress value={generationProgress} className="h-2" />
+                  <p className="text-xs text-muted-foreground">{Math.round(generationProgress)}%</p>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
 
         <div className="p-4 border-t border-border">
           <div className="flex gap-2">
             <Input
-              placeholder="Напишите сообщение..."
+              placeholder="Опиши какой сайт нужен..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={(e) => {
@@ -149,9 +370,10 @@ export const FullscreenDemo = () => {
                   handleSend();
                 }
               }}
+              disabled={isGenerating}
               className="flex-1"
             />
-            <Button onClick={handleSend} size="icon">
+            <Button onClick={handleSend} size="icon" disabled={isGenerating}>
               <Icon name="Send" size={18} />
             </Button>
           </div>
@@ -179,7 +401,7 @@ export const FullscreenDemo = () => {
             </Button>
           </div>
 
-          <Button className="bg-primary hover:bg-primary/90">
+          <Button className="bg-primary hover:bg-primary/90" disabled={!generatedSite}>
             <Icon name="Upload" size={16} className="mr-2" />
             Опубликовать
           </Button>
@@ -187,145 +409,77 @@ export const FullscreenDemo = () => {
 
         <div className="flex-1 overflow-auto p-6 bg-muted/5">
           {activeTab === "site" ? (
-            <div className="max-w-6xl mx-auto space-y-6">
-              <Card className="overflow-hidden border-border/50 card-glow">
-                <div className="bg-muted/30 px-4 py-2 flex items-center gap-3 border-b border-border/50">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/70"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/70"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500/70"></div>
-                  </div>
-                  <div className="flex-1 bg-background/80 rounded px-3 py-1 text-sm text-muted-foreground flex items-center gap-2">
-                    <Icon name="Lock" size={12} className="text-green-500" />
-                    <span>coffee-shop.poehali.dev</span>
-                  </div>
-                </div>
-
-                <CardContent className="p-0">
-                  <div className="bg-gradient-to-br from-amber-950/40 via-background to-background p-12">
-                    <div className="max-w-4xl mx-auto space-y-8">
-                      <div className="text-center space-y-6">
-                        <div className="inline-flex w-20 h-20 bg-amber-600/30 rounded-full items-center justify-center border-2 border-amber-600/50">
-                          <Icon name="Coffee" size={40} className="text-amber-400" />
-                        </div>
-                        <h1 className="text-5xl font-heading font-bold text-gradient">
-                          Уютная Кофейня
-                        </h1>
-                        <p className="text-xl text-muted-foreground">
-                          Лучший кофе в городе с 2010 года
-                        </p>
-                        <div className="flex gap-4 justify-center">
-                          <Button size="lg" className="bg-amber-600 hover:bg-amber-700">
-                            <Icon name="MapPin" size={18} className="mr-2" />
-                            Забронировать столик
-                          </Button>
-                          <Button size="lg" variant="outline">Меню</Button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-6">
-                        {[
-                          { icon: "Coffee", title: "Эспрессо", price: "150 ₽" },
-                          { icon: "Coffee", title: "Капучино", price: "200 ₽" },
-                          { icon: "Coffee", title: "Milk", price: "220 ₽" }
-                        ].map((item, i) => (
-                          <Card key={i} className="border-amber-600/20 bg-card/50 hover:bg-card transition-colors cursor-pointer">
-                            <CardContent className="p-6 text-center">
-                              <Icon name={item.icon} className="mx-auto mb-3 text-amber-500" size={40} />
-                              <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
-                              <p className="text-2xl font-bold text-amber-600">{item.price}</p>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="grid grid-cols-3 gap-4">
-                <Card className="border-border/50 bg-card/50">
-                  <CardContent className="p-6 text-center">
-                    <Icon name="Zap" className="text-primary mx-auto mb-3" size={32} />
-                    <p className="text-3xl font-bold mb-1">30 сек</p>
-                    <p className="text-sm text-muted-foreground">Полный сайт готов</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-border/50 bg-card/50">
-                  <CardContent className="p-6 text-center">
-                    <Icon name="FileText" className="text-secondary mx-auto mb-3" size={32} />
-                    <p className="text-3xl font-bold mb-1">8 страниц</p>
-                    <p className="text-sm text-muted-foreground">Со всеми функциями</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-border/50 bg-card/50">
-                  <CardContent className="p-6 text-center">
-                    <Icon name="Smartphone" className="text-green-500 mx-auto mb-3" size={32} />
-                    <p className="text-3xl font-bold mb-1">100%</p>
-                    <p className="text-sm text-muted-foreground">Адаптивный</p>
-                  </CardContent>
-                </Card>
-              </div>
+            <div className="max-w-6xl mx-auto">
+              {renderSitePreview()}
             </div>
           ) : (
             <div className="max-w-4xl mx-auto">
-              <Card className="bg-[#1a1a1a] border-border/50">
-                <CardContent className="p-8 font-mono text-sm">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-blue-400">
-                      <Icon name="Folder" size={18} />
-                      <span className="font-semibold">src/</span>
-                    </div>
-                    <div className="ml-6 space-y-2 text-green-400">
-                      <div className="flex items-center gap-2">
-                        <Icon name="FileCode" size={16} className="text-purple-400" />
-                        <span>App.tsx</span>
-                        <span className="text-muted-foreground text-xs ml-auto">Главный компонент</span>
-                      </div>
+              {generatedSite ? (
+                <Card className="bg-[#1a1a1a] border-border/50">
+                  <CardContent className="p-8 font-mono text-sm">
+                    <div className="space-y-3">
                       <div className="flex items-center gap-2 text-blue-400">
-                        <Icon name="Folder" size={16} />
-                        <span>pages/</span>
+                        <Icon name="Folder" size={18} />
+                        <span className="font-semibold">src/</span>
                       </div>
-                      <div className="ml-6 space-y-1.5">
-                        {["Home.tsx", "Menu.tsx", "About.tsx", "Contact.tsx", "Booking.tsx"].map((file) => (
-                          <div key={file} className="flex items-center gap-2 text-green-400">
-                            <Icon name="FileCode" size={14} className="text-purple-400" />
-                            <span>{file}</span>
-                          </div>
-                        ))}
+                      <div className="ml-6 space-y-2 text-green-400">
+                        <div className="flex items-center gap-2">
+                          <Icon name="FileCode" size={16} className="text-purple-400" />
+                          <span>App.tsx</span>
+                          <span className="text-muted-foreground text-xs ml-auto">Главный компонент</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-400">
+                          <Icon name="Folder" size={16} />
+                          <span>pages/</span>
+                        </div>
+                        <div className="ml-6 space-y-1.5">
+                          {["Home.tsx", "About.tsx", "Contact.tsx", "Services.tsx", "Portfolio.tsx"].slice(0, generatedSite.pages).map((file) => (
+                            <div key={file} className="flex items-center gap-2 text-green-400">
+                              <Icon name="FileCode" size={14} className="text-purple-400" />
+                              <span>{file}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-400">
+                          <Icon name="Folder" size={16} />
+                          <span>components/</span>
+                        </div>
+                        <div className="ml-6 space-y-1.5">
+                          {["Header.tsx", "Footer.tsx", "Card.tsx", "Button.tsx"].map((file) => (
+                            <div key={file} className="flex items-center gap-2 text-green-400">
+                              <Icon name="FileCode" size={14} className="text-purple-400" />
+                              <span>{file}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-blue-400">
-                        <Icon name="Folder" size={16} />
-                        <span>components/</span>
-                      </div>
-                      <div className="ml-6 space-y-1.5">
-                        {["Header.tsx", "Footer.tsx", "ProductCard.tsx", "BookingForm.tsx"].map((file) => (
-                          <div key={file} className="flex items-center gap-2 text-green-400">
-                            <Icon name="FileCode" size={14} className="text-purple-400" />
-                            <span>{file}</span>
-                          </div>
-                        ))}
+                      <div className="mt-6 pt-4 border-t border-border/30">
+                        <div className="flex gap-4 text-muted-foreground text-xs">
+                          <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
+                            <Icon name="CheckCircle" size={12} className="mr-1" />
+                            {generatedSite.pages + 4} компонентов
+                          </Badge>
+                          <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
+                            <Icon name="Layout" size={12} className="mr-1" />
+                            {generatedSite.pages} страниц
+                          </Badge>
+                          <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/30">
+                            <Icon name="Smartphone" size={12} className="mr-1" />
+                            Адаптивный
+                          </Badge>
+                        </div>
                       </div>
                     </div>
-                    <div className="mt-6 pt-4 border-t border-border/30">
-                      <div className="flex gap-4 text-muted-foreground text-xs">
-                        <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
-                          <Icon name="CheckCircle" size={12} className="mr-1" />
-                          8 компонентов
-                        </Badge>
-                        <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
-                          <Icon name="Layout" size={12} className="mr-1" />
-                          5 страниц
-                        </Badge>
-                        <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/30">
-                          <Icon name="Smartphone" size={12} className="mr-1" />
-                          Адаптивный
-                        </Badge>
-                      </div>
-                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center space-y-4">
+                    <Icon name="FolderOpen" size={64} className="mx-auto text-muted-foreground/30" />
+                    <p className="text-muted-foreground">Сначала создай сайт через чат</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              )}
             </div>
           )}
         </div>
