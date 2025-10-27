@@ -15,35 +15,35 @@ const Index = () => {
   const features = [
     {
       icon: "Sparkles",
-      title: "ИИ-ассистент",
-      description: "Умный помощник создаёт код по вашим описаниям на русском языке"
+      title: "ИИ создаёт сайты",
+      description: "Опишите идею на русском — получите готовый сайт за 30 секунд"
     },
     {
-      icon: "Code2",
-      title: "Редактор кода",
-      description: "Встроенный редактор с подсветкой синтаксиса и автодополнением"
+      icon: "Layout",
+      title: "Полноценные проекты",
+      description: "Лендинги, интернет-магазины, блоги, портфолио — всё со всеми страницами"
     },
     {
       icon: "Zap",
       title: "Мгновенная публикация",
-      description: "Разверните проект в облаке за несколько секунд"
+      description: "Сайт готов и опубликован в интернете в один клик"
     },
     {
       icon: "Database",
-      title: "База данных",
-      description: "PostgreSQL база из коробки для каждого проекта"
+      title: "База данных включена",
+      description: "PostgreSQL для форм, каталогов, пользователей — уже настроена"
     },
     {
-      icon: "Shield",
-      title: "Безопасность",
-      description: "Управление секретами и переменными окружения"
+      icon: "Palette",
+      title: "Адаптивный дизайн",
+      description: "Все сайты автоматически адаптируются под телефоны и планшеты"
     },
     {
-      icon: "Blocks",
-      title: "Компоненты",
-      description: "Библиотека готовых UI-компонентов для быстрой разработки"
+      icon: "Code2",
+      title: "Можно редактировать",
+      description: "Доступ к коду, интеграция с GitHub, полный контроль"
     }
-  ];
+  ];}
 
   const plans = [
     {
@@ -99,11 +99,11 @@ const Index = () => {
         <div className="container mx-auto text-center">
           <div className="animate-fade-in">
             <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6 text-gradient glow">
-              Создавайте сайты силой мысли
+              Создавайте сайты за 30 секунд
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              ИИ-платформа для разработки веб-приложений через естественный язык. 
-              Без программирования. Быстрее конструкторов в 30 раз.
+              ИИ создаёт полноценные сайты по вашему описанию. 
+              Лендинги, магазины, блоги — всё готово за полминуты.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" className="text-lg px-8 py-6 card-glow hover:scale-105 transition-transform">
@@ -130,7 +130,7 @@ const Index = () => {
               Попробуй прямо сейчас
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Опиши что нужно создать, и ИИ сгенерирует готовый код
+              Опиши какой сайт нужен, и ИИ создаст полноценный проект
             </p>
           </div>
           <LiveCodeEditor />
