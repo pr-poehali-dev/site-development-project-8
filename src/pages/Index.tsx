@@ -2,8 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Icon from "@/components/ui/icon";
 import { useState } from "react";
+import { ChatWidget } from "@/components/ChatWidget";
+import { InteractiveDemo } from "@/components/InteractiveDemo";
+import { LiveCodeEditor } from "@/components/LiveCodeEditor";
 
 const Index = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
@@ -113,16 +117,23 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="mt-16 relative animate-slide-up">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 blur-3xl"></div>
-            <Card className="relative overflow-hidden card-glow">
-              <CardContent className="p-8">
-                <div className="aspect-video bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center">
-                  <Icon name="Code2" size={80} className="text-primary/40" />
-                </div>
-              </CardContent>
-            </Card>
+          <div className="mt-16 animate-slide-up">
+            <InteractiveDemo />
           </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-4 bg-muted/20">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 text-gradient">
+              Попробуй прямо сейчас
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Опиши что нужно создать, и ИИ сгенерирует готовый код
+            </p>
+          </div>
+          <LiveCodeEditor />
         </div>
       </section>
 
@@ -283,6 +294,8 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      
+      <ChatWidget />
     </div>
   );
 };
